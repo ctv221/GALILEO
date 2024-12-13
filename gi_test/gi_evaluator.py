@@ -1,4 +1,3 @@
-```python
 import openai
 import anthropic
 import json
@@ -261,4 +260,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-```
