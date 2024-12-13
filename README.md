@@ -1,5 +1,9 @@
 # Galileo Index
 
+<div align="center">
+  <img src="https://galileoindex.ai/logo.png" alt="Galileo Index Logo" width="200"/>
+</div>
+
 Illuminating truth in artificial intelligence through empirical measurement.
 
 ## Links
