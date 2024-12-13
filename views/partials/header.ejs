@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galileo Index - <%= typeof pageTitle !== 'undefined' ? pageTitle : 'AI Benchmark' %></title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@400;500;600&display=swap">
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2c5282;
+            --accent-color: #c4a777;
+            --background-color: #f8fafc;
+            --text-color: #2d3748;
+            --gold: #c4a777;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1rem;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--background-color);
+            color: var(--gold);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5em;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--gold);
+            font-size: 1.1em;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/playground" class="nav-link">Playground</a>
+        <a href="/stats" class="nav-link">Stats</a>
+    </nav>
+    <div class="container"> 

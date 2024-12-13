@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logo.png">
+    <title><%= giData.title %></title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@400;500;600&display=swap">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2c5282;
+            --accent-color: #c4a777;
+            --background-color: #f8fafc;
+            --text-color: #2d3748;
+            --gold: #c4a777;
+            --gradient-start: #1a365d;
+            --gradient-end: #2c5282;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c4a777' fill-opacity='0.1'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 0.5px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            padding: 4rem 2rem;
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2V6h4V4H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        .nav-links {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 20px;
+            text-decoration: none;
+            color: var(--primary-color);
+            font-weight: 500;
+            border: 1px solid var(--gold);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--gold);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .social-links {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .x-icon, .github-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+            color: var(--primary-color);
+        }
+
+        .x-icon:hover, .github-icon:hover {
+            transform: translateY(-2px);
+        }
+
+        .content-wrapper {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .floating-decoration {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle at center, var(--accent-color) 0%, transparent 70%);
+            opacity: 0.1;
+            pointer-events: none;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(100px, 100px) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        pre {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid rgba(196, 167, 119, 0.2);
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Components Grid Styles */
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .component {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(196, 167, 119, 0.2);
+        }
+
+        .component:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .weight {
+            display: inline-block;
+            background-color: var(--gold);
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-left: 10px;
+            font-weight: 500;
+        }
+
+        /* Logo Container Styles */
+        .logo-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 2rem auto;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+            padding: 3px;
+            box-shadow: 
+                0 0 30px rgba(196, 167, 119, 0.2),
+                inset 0 0 10px rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+        }
+
+        .quote {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            color: var(--gold);
+            text-align: center;
+            margin: 40px 0;
+            font-size: 1.4em;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            
+            .container {
+                padding: 0 15px;
+            }
+        }
+
+        .paper-icon {
+            width: 24px;
+            height: 24px;
+            transition: transform 0.3s ease;
+            color: var(--primary-color);
+        }
+
+        .paper-icon:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/header') %>
+    
+    <div class="social-links">
+        <a href="/whitepaper" target="_blank" title="Read Whitepaper">
+            <svg class="paper-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+            </svg>
+        </a>
+        <a href="https://x.com/GalileoIndexSOL" target="_blank" title="Follow us on X">
+            <svg class="x-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+        </a>
+        <a href="https://github.com/ctv221/galileo/tree/main" target="_blank" title="View on GitHub">
+            <svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"/>
+            </svg>
+        </a>
+    </div>
+
+    <div class="floating-decoration"></div>
+    
+    <%- body %>
+</body>
+</html> 

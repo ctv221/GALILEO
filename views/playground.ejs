@@ -1,0 +1,920 @@
+<%- include('partials/header', { pageTitle: 'Playground' }) %>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">AI Playground</h1>
+        <p class="page-subtitle">Test and compare different AI models in real-time</p>
+    </div>
+
+    <div class="playground-header">
+        <div class="queue-status-badge" id="globalQueueStatus">
+            <span class="queue-dot"></span>
+            <span class="queue-text">Loading queue status...</span>
+        </div>
+        <div class="premium-toggle">
+            <label class="premium-label">
+                <span class="premium-icon">⚡</span>
+                Skip Queue
+                <div class="coming-soon">Skip queue with $GALILEO tokens (feature not enabled yet)</div>
+            </label>
+            <label class="toggle">
+                <input type="checkbox" id="skipQueue" disabled>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="model-selection">
+        <h3>Select AI Models</h3>
+        
+        <div class="providers-grid">
+            <!-- OpenAI -->
+            <div class="provider-group">
+                <div class="provider-header">
+                    <img src="/openai.png" alt="OpenAI Logo" class="provider-logo">
+                    <h4>OpenAI Models</h4>
+                </div>
+                <div class="models-list">
+                    <label class="model-option">
+                        <input type="checkbox" data-model="gpt-4o">
+                        <span class="model-name">GPT-4o</span>
+                        <span class="model-tag">Latest</span>
+                    </label>
+                    <label class="model-option">
+                        <input type="checkbox" data-model="gpt-4" checked>
+                        <span class="model-name">GPT-4</span>
+                        <span class="model-tag">Most Capable</span>
+                    </label>
+                    <label class="model-option">
+                        <input type="checkbox" data-model="gpt-3.5-turbo">
+                        <span class="model-name">GPT-3.5</span>
+                        <span class="model-tag">Efficient</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Anthropic -->
+            <div class="provider-group">
+                <div class="provider-header">
+                    <img src="/anthropic.png" alt="Anthropic Logo" class="provider-logo">
+                    <h4>Claude Models</h4>
+                </div>
+                <div class="models-list">
+                    <label class="model-option">
+                        <input type="checkbox" data-model="claude-3-5-sonnet-20241022">
+                        <span class="model-name">Claude 3.5 Sonnet</span>
+                        <span class="model-tag">Latest</span>
+                    </label>
+                    <label class="model-option">
+                        <input type="checkbox" data-model="claude-3-opus-20240229">
+                        <span class="model-name">Claude 3 Opus</span>
+                        <span class="model-tag">Advanced</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- X.AI -->
+            <div class="provider-group">
+                <div class="provider-header">
+                    <img src="/xai.png" alt="xAI Logo" class="provider-logo">
+                    <h4>Grok Models</h4>
+                </div>
+                <div class="models-list">
+                    <label class="model-option">
+                        <input type="checkbox" data-model="grok-beta">
+                        <span class="model-name">Grok Beta</span>
+                        <span class="model-tag">Beta</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-section">
+        <textarea 
+            id="userPrompt" 
+            placeholder="Enter your prompt here..."
+            rows="4"
+        ></textarea>
+
+        <div class="controls">
+            <button id="toggleAdvanced" class="btn-secondary">Advanced Settings</button>
+            <button id="runTest" class="btn-primary">Run Test</button>
+        </div>
+
+        <div id="advancedSettings" class="advanced-settings" style="display: none;">
+            <div class="setting">
+                <label>Temperature</label>
+                <div class="slider-container">
+                    <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7">
+                    <span id="tempValue">0.7</span>
+                </div>
+            </div>
+            <div class="setting">
+                <label>System Prompt (Optional)</label>
+                <textarea 
+                    id="systemPrompt" 
+                    placeholder="Custom instructions for the AI..."
+                    rows="2"
+                ></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div id="results" class="results-grid"></div>
+</div>
+
+<style>
+.playground-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.providers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 1rem 0;
+}
+
+.provider-group {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.provider-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--gold);
+}
+
+.provider-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.provider-header h4 {
+    margin: 0;
+    color: var(--gold);
+    font-size: 1.1rem;
+}
+
+.models-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.model-option {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.model-option:hover {
+    background: #f8f9fa;
+    border-color: var(--gold);
+}
+
+.model-option input[type="checkbox"] {
+    margin-right: 1rem;
+}
+
+.model-name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.model-tag {
+    font-size: 0.8em;
+    padding: 0.25rem 0.5rem;
+    background: #f0f0f0;
+    border-radius: 12px;
+    color: #666;
+}
+
+.input-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    font-size: 1em;
+    resize: vertical;
+    margin-bottom: 1rem;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: var(--gold);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: var(--dark-gold);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+}
+
+.btn-secondary:hover {
+    background: rgba(196, 167, 119, 0.1);
+}
+
+.advanced-settings {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.setting {
+    margin-bottom: 1rem;
+}
+
+.setting label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #666;
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.slider-container input[type="range"] {
+    flex: 1;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.result-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.result-card h3 {
+    margin: 0 0 1rem 0;
+    color: var(--gold);
+}
+
+.score {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: var(--gold);
+    color: white;
+    border-radius: 12px;
+    font-size: 0.9em;
+    margin-bottom: 1rem;
+}
+
+.response-text {
+    white-space: pre-wrap;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 0.95em;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.score-breakdown {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+}
+
+.breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.3s ease;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+    color: var(--gold);
+    font-weight: 500;
+}
+
+.loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    border-right-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.result-card {
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.result-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.rank {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--gold);
+    min-width: 40px;
+}
+
+.top-result {
+    border: 2px solid var(--gold);
+    transform: scale(1.02);
+}
+
+.top-result::before {
+    content: '🏆 Top Response';
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: var(--gold);
+    color: white;
+    padding: 2px 12px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
+.response-text.has-markdown {
+    font-family: inherit;
+}
+
+.response-text pre {
+    background: #2d2d2d;
+    color: #ccc;
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.response-text code {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9em;
+}
+
+.response-text p {
+    margin: 0.5rem 0;
+    white-space: normal;
+}
+
+.response-text ul, .response-text ol {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.response-text blockquote {
+    border-left: 3px solid var(--gold);
+    margin: 1rem 0;
+    padding-left: 1rem;
+    color: #666;
+}
+
+.response-text h1, .response-text h2, .response-text h3, 
+.response-text h4, .response-text h5, .response-text h6 {
+    margin: 1rem 0 0.5rem 0;
+    color: var(--gold);
+}
+
+.response-text table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1rem 0;
+}
+
+.response-text th, .response-text td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+.response-text th {
+    background: #f5f5f5;
+}
+
+.queue-status {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: 2rem 0;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.queue-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--background-color);
+    border-top: 3px solid var(--gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.queue-info {
+    flex: 1;
+}
+
+.queue-info h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.queue-position, .queue-time {
+    color: var(--text-color);
+    margin: 0.25rem 0;
+    font-size: 0.95em;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.playground-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.queue-status-badge {
+    background: var(--background-color);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9em;
+    border: 1px solid rgba(196, 167, 119, 0.2);
+}
+
+.queue-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: pulse 2s infinite;
+}
+
+.queue-text {
+    color: var(--text-color);
+}
+
+.premium-toggle {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.premium-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--primary-color);
+    position: relative;
+}
+
+.premium-icon {
+    color: var(--gold);
+    font-size: 1.2em;
+}
+
+.coming-soon {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    font-size: 0.8em;
+    color: var(--gold);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.premium-label:hover .coming-soon {
+    opacity: 1;
+}
+
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: not-allowed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--gold);
+}
+
+input:disabled + .slider {
+    opacity: 0.6;
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.response-box {
+    margin-top: 1rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const modelCheckboxes = document.querySelectorAll('.model-option input[type="checkbox"]');
+    const toggleAdvanced = document.getElementById('toggleAdvanced');
+    const advancedSettings = document.getElementById('advancedSettings');
+    const runTest = document.getElementById('runTest');
+    const results = document.getElementById('results');
+    let selectedModels = ['gpt-4']; // Default model
+
+    // Model selection
+    modelCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            const model = checkbox.dataset.model;
+            
+            if (checkbox.checked) {
+                if (!selectedModels.includes(model)) {
+                    selectedModels.push(model);
+                }
+            } else {
+                selectedModels = selectedModels.filter(m => m !== model);
+            }
+
+            console.log('Selected models:', selectedModels);
+        });
+    });
+
+    // Toggle advanced settings
+    toggleAdvanced.addEventListener('click', () => {
+        advancedSettings.style.display = 
+            advancedSettings.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Temperature slider
+    const tempSlider = document.getElementById('temperature');
+    const tempValue = document.getElementById('tempValue');
+    tempSlider.addEventListener('input', (e) => {
+        tempValue.textContent = e.target.value;
+    });
+
+    // Run test
+    runTest.addEventListener('click', async () => {
+        const prompt = document.getElementById('userPrompt').value;
+        if (!prompt.trim() || selectedModels.length === 0) {
+            alert('Please enter a prompt and select at least one model');
+            return;
+        }
+
+        // Show loading state
+        runTest.disabled = true;
+        runTest.textContent = 'Processing...';
+        
+        results.innerHTML = `
+            <div class="queue-status">
+                <div class="queue-spinner"></div>
+                <div class="queue-info">
+                    <h3>Initializing Request...</h3>
+                    <p class="queue-position">Connecting to queue...</p>
+                </div>
+            </div>
+        `;
+
+        try {
+            // Submit request to queue
+            const queueResponse = await fetch('/api/test', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    prompt,
+                    models: selectedModels,
+                    settings: {
+                        temperature: parseFloat(tempSlider.value),
+                        systemPrompt: document.getElementById('systemPrompt').value
+                    }
+                })
+            });
+
+            if (!queueResponse.ok) {
+                throw new Error(`HTTP error! status: ${queueResponse.status}`);
+            }
+
+            const queueData = await queueResponse.json();
+            const queueId = queueData.queueId;
+            
+            // Update initial queue status with returned info
+            updateQueueDisplay(queueData.queueInfo, queueId);
+
+            // Poll queue status
+            const checkStatus = async () => {
+                const statusResponse = await fetch(`/api/queue-status/${queueId}`);
+                const statusData = await statusResponse.json();
+
+                if (statusData.status === 'error') {
+                    throw new Error('Request failed in queue');
+                }
+
+                // Update queue status display
+                updateQueueDisplay(statusData, queueId);
+
+                if (statusData.status === 'completed' && statusData.results) {
+                    displayResults(statusData.results);
+                    return;
+                }
+
+                // Continue polling if not completed
+                setTimeout(checkStatus, 1000);
+            };
+
+            checkStatus();
+
+        } catch (error) {
+            console.error('Test error:', error);
+            results.innerHTML = `
+                <div class="error-message">
+                    Error: ${error.message || 'Failed to run test. Please try again.'}
+                </div>
+            `;
+            runTest.disabled = false;
+            runTest.textContent = 'Run Test';
+        }
+    });
+
+    function updateQueueDisplay(queueInfo, queueId) {
+        const queueDisplay = document.querySelector('.queue-info');
+        
+        if (queueInfo.status === 'completed') {
+            queueDisplay.innerHTML = `
+                <h3>Processing Complete!</h3>
+                <p>Displaying results...</p>
+            `;
+            return;
+        }
+
+        const waitingText = queueInfo.waiting > 0 
+            ? `${queueInfo.waiting} request${queueInfo.waiting > 1 ? 's' : ''} waiting`
+            : 'No waiting requests';
+        
+        const activeText = queueInfo.active > 0
+            ? `${queueInfo.active} active request${queueInfo.active > 1 ? 's' : ''}`
+            : '';
+
+        const positionText = queueInfo.position > 0
+            ? `You are #${queueInfo.position} in line`
+            : 'Processing your request';
+
+        const waitTime = queueInfo.estimatedTime || queueInfo.averageWait || 10;
+        
+        queueDisplay.innerHTML = `
+            <h3>${queueInfo.status === 'processing' ? 'Processing Request' : 'Request Queued'}</h3>
+            <p class="queue-position">${positionText}</p>
+            <p class="queue-stats">
+                ${waitingText}
+                ${activeText ? ` • ${activeText}` : ''}
+            </p>
+            <p class="queue-time">
+                Estimated wait: ~${waitTime} seconds
+            </p>
+        `;
+    }
+
+    function displayResults(modelResults) {
+        if (!Array.isArray(modelResults)) {
+            console.error('Invalid results format:', modelResults);
+            return;
+        }
+
+        const sortedResults = [...modelResults].sort((a, b) => 
+            (b.score || 0) - (a.score || 0)
+        );
+
+        results.innerHTML = sortedResults.map((result, index) => `
+            <div class="result-card ${index === 0 ? 'top-result' : ''}">
+                <div class="result-header">
+                    <div class="rank">#${index + 1}</div>
+                    <h3>${result.model}</h3>
+                    ${result.score !== null ? `<div class="score">Score: ${result.score}%</div>` : ''}
+                </div>
+                <div class="response-box">
+                    <div class="response-content">
+                        <div class="response-text ${result.response.includes('```') ? 'has-markdown' : ''}">
+                            ${formatResponse(result.response)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        if (window.Prism) {
+            Prism.highlightAll();
+        }
+    }
+
+    function formatResponse(response) {
+        if (typeof response !== 'string') return 'No response available';
+
+        // Clean up the response text
+        const cleanedResponse = response
+            .trim()
+            .replace(/\n{2,}/g, '\n\n')    // Replace 2+ newlines with exactly 2
+            .replace(/\s+$/gm, '')         // Remove trailing spaces
+            .replace(/^\s+/gm, '')         // Remove leading spaces
+            .replace(/[ \t]+/g, ' ')       // Replace multiple spaces with single
+            .replace(/\n +/g, '\n');       // Remove spaces after newlines
+
+        // Sanitize HTML
+        const sanitized = cleanedResponse
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        // Parse markdown if present
+        if (response.includes('```') || response.includes('**') || response.includes('#')) {
+            try {
+                return marked.parse(sanitized, {
+                    breaks: true,
+                    gfm: true,
+                    smartLists: true,
+                    smartypants: true
+                });
+            } catch (error) {
+                console.error('Markdown parsing error:', error);
+                return sanitized;
+            }
+        }
+
+        return sanitized;
+    }
+
+    // Add loading indicator styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gold);
+            font-weight: 500;
+        }
+        .error-message {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f8d7da;
+            color: #721c24;
+        }
+    `;
+    document.head.appendChild(style);
+
+    async function updateGlobalQueueStatus() {
+        try {
+            const response = await fetch('/api/queue-info');
+            const queueInfo = await response.json();
+            
+            const statusBadge = document.getElementById('globalQueueStatus');
+            if (queueInfo.length === 0) {
+                statusBadge.innerHTML = `
+                    <span class="queue-dot" style="background: #10b981;"></span>
+                    <span class="queue-text">No queue • Ready to process</span>
+                `;
+            } else {
+                statusBadge.innerHTML = `
+                    <span class="queue-dot"></span>
+                    <span class="queue-text">
+                        ${queueInfo.waiting} in queue
+                        ${queueInfo.active ? ` • ${queueInfo.active} processing` : ''}
+                        ${queueInfo.averageWait ? ` • ~${queueInfo.averageWait}s wait` : ''}
+                    </span>
+                `;
+            }
+        } catch (error) {
+            console.error('Failed to update queue status:', error);
+        }
+    }
+
+    // Update queue status every 2 seconds
+    setInterval(updateGlobalQueueStatus, 2000);
+    updateGlobalQueueStatus(); // Initial update
+});
+</script> 

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logo.png">
+    <title><%= giData.title %></title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@400;500;600&display=swap">
+    <style>
+        /* Copy styles from whitepaper.ejs */
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1><%= giData.title %></h1>
+        <p><%= giData.description %></p>
+    </div>
+
+    <div class="container">
+        <div class="content-wrapper">
+            <h2>Galileo Index Implementation</h2>
+            <p>A practical approach to measuring AI truthfulness using Solana for transparent validation and Python for evaluation logic.</p>
+
+            <h2>Core Components</h2>
+            <pre><code>
+├── evaluation/
+│   ├── test_cases/           # Verified test cases with known answers
+│   │   ├── mathematics/      # Mathematical proofs and calculations
+│   │   ├── physics/         # Physical laws and principles
+│   │   └── logic/           # Logical reasoning problems
+│   │
+│   ├── validators/          # Python evaluation modules
+│   │   ├── math_validator.py
+│   │   ├── semantic_validator.py
+│   │   └── logic_validator.py
+│   │
+│   └── scoring/            # Scoring and aggregation logic
+│
+├── blockchain/            # Solana Program (Smart Contract)
+│   ├── program/
+│   │   ├── src/
+│   │   │   ├── lib.rs     # Core program logic
+│   │   │   ├── state.rs   # Program state management
+│   │   │   └── error.rs   # Custom error types
+│   │   └── Cargo.toml
+│   │
+│   └── client/           # TypeScript client
+│       └── src/
+│           └── index.ts  # Client interface</code></pre>
+
+            <h2>Solana Program Example</h2>
+            <pre><code>// lib.rs
+use anchor_lang::prelude::*;
+
+#[program]
+pub mod galileo_index {
+    use super::*;
+
+    pub fn submit_validation(
+        ctx: Context<SubmitValidation>,
+        model_id: String,
+        response_hash: [u8; 32],
+        score: u64,
+    ) -> Result<()> {
+        let validation = &mut ctx.accounts.validation;
+        validation.model_id = model_id;
+        validation.response_hash = response_hash;
+        validation.score = score;
+        validation.timestamp = Clock::get()?.unix_timestamp;
+        Ok(())
+    }
+}</code></pre>
+
+            <h2>Python Evaluation Logic</h2>
+            <pre><code>from dataclasses import dataclass
+from typing import List, Dict
+
+@dataclass
+class TestCase:
+    question: str
+    correct_answer: str
+    validation_type: str
+    complexity: int
+
+class GalileoEvaluator:
+    def __init__(self):
+        self.test_cases = self.load_test_cases()
+        self.validators = {
+            'math': MathValidator(),
+            'logic': LogicValidator(),
+            'semantic': SemanticValidator()
+        }
+    
+    def evaluate_model(
+        self, 
+        model_id: str, 
+        responses: List[Dict]
+    ) -> Dict:
+        scores = []
+        for response in responses:
+            test_case = self.test_cases[response['question_id']]
+            validator = self.validators[test_case.validation_type]
+            score = validator.validate(
+                response['answer'],
+                test_case.correct_answer
+            )
+            scores.append(score)
+        
+        return {
+            'model_id': model_id,
+            'overall_score': sum(scores) / len(scores),
+            'confidence': self.calculate_confidence(scores)
+        }</code></pre>
+
+            <h2>Test Case Example</h2>
+            <pre><code>{
+    "id": "MATH-001",
+    "question": "Solve the differential equation: dy/dx = 2x + y",
+    "correct_answer": "y = -2x - 2 + Ce^x",
+    "validation_type": "math",
+    "complexity": 4,
+    "validation_points": [
+        "Method identification",
+        "Integration steps",
+        "Final form correctness",
+        "Constant handling"
+    ]
+}</code></pre>
+
+            <h2>Getting Started</h2>
+            <h3>Local Development</h3>
+            <pre><code># Clone the repository
+git clone https://github.com/GalileoIndex/GI
+cd GI
+
+# Install Python dependencies
+poetry install
+
+# Install Solana tools
+sh -c "$(curl -sSfL https://release.solana.com/v1.17.0/install)"
+
+# Build and deploy Solana program
+cd blockchain/program
+cargo build-bpf
+solana program deploy target/deploy/galileo_index.so</code></pre>
+
+            <h2>Running Evaluations</h2>
+            <pre><code>from galileo_index import GalileoEvaluator
+
+evaluator = GalileoEvaluator()
+
+# Evaluate a model
+results = evaluator.evaluate_model(
+    model_id="claude-3",
+    responses=[
+        {
+            "question_id": "MATH-001",
+            "answer": "y = -2x - 2 + Ce^x"
+        },
+        # ... more responses
+    ]
+)</code></pre>
+        </div>
+    </div>
+</body>
+</html> 

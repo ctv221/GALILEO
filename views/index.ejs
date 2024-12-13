@@ -1,0 +1,1172 @@
+<div class="container">
+    <div class="hero">
+        <div class="logo-container">
+            <img src="logo.png" alt="Galileo Index Logo">
+        </div>
+        <h1><%= giData.title %></h1>
+        <p class="hero-description">Illuminating truth in artificial intelligence through empirical measurement</p>
+        <div class="hero-actions">
+            <a href="/playground" class="primary-button">Try Playground</a>
+            <a href="https://github.com/ctv221/galileo/tree/main" class="github-button" target="_blank">
+                <svg class="github-hero-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"/>
+                </svg>
+                View on GitHub
+            </a>
+        </div>
+    </div>
+
+    <div class="section-divider">
+        <span class="divider-text">Current Rankings</span>
+    </div>
+
+    <div class="rankings-section">
+        <h2>Current Rankings</h2>
+        <div class="rankings-grid">
+            <% if (stats && stats.length > 0) { %>
+                <% stats.forEach(modelStat => { %>
+                    <div class="model-card">
+                        <div class="model-header">
+                            <div class="model-name-wrapper">
+                                <div class="model-title">
+                                    <img src="<%= modelStat.model.toLowerCase().includes('gpt') ? 'openai.png' : 
+                                              modelStat.model.toLowerCase().includes('claude') ? 'anthropic.png' : 
+                                              modelStat.model.toLowerCase().includes('grok') ? 'xai.png' : 
+                                              'google.png' %>" 
+                                         alt="<%= modelStat.model %> logo" 
+                                         class="model-logo">
+                                    <h3><%= modelStat.model %></h3>
+                                </div>
+                                <span class="status verified">Verified</span>
+                            </div>
+                            <div class="score-circle">
+                                <span class="score-value"><%= modelStat.averageScore %></span>
+                            </div>
+                        </div>
+                        <div class="model-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Tests</span>
+                                <span class="stat-value"><%= modelStat.totalTests %></span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Recent Score</span>
+                                <span class="stat-value"><%= modelStat.recentScores.length > 0 ? `${modelStat.recentScores[0].score}%` : '0%' %></span>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+                <div class="model-card stats-card">
+                    <div class="model-header">
+                        <div class="model-name-wrapper">
+                            <div class="model-title">
+                                <svg class="stats-icon" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M3 3v18h18v-2H5V3H3zm4 14h2v-4H7v4zm4 0h2V7h-2v10zm4 0h2v-7h-2v7z"/>
+                                </svg>
+                                <h3>Detailed Stats</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="stats-description">View detailed performance metrics and historical data for all models</p>
+                    <a href="/stats" class="stats-button">View Statistics</a>
+                </div>
+            <% } else { %>
+                <div class="model-card empty">
+                    <div class="empty-state">
+                        <svg class="empty-icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H6v-2h6v2zm4-4H6v-2h10v2zm0-4H6V7h10v2z"/>
+                        </svg>
+                        <h3>No Data Yet</h3>
+                        <p>Start testing models in the playground</p>
+                        <a href="/playground" class="primary-button">Go to Playground</a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="section-divider">
+        <span class="divider-text">Scoring Methodology</span>
+    </div>
+
+    <div class="scoring-methodology">
+        <div class="methodology-intro">
+            <h2>How We Score AI Models</h2>
+            <p>Our scoring system uses pattern matching and natural language processing to evaluate AI responses across four key dimensions:</p>
+        </div>
+        
+        <div class="scoring-grid">
+            <div class="scoring-component">
+                <div class="component-header">
+                    <div class="weight-badge">40%</div>
+                    <h3>Factual Accuracy</h3>
+                </div>
+                <div class="criteria-list">
+                    <div class="criteria-item">
+                        <div class="criteria-header">
+                            <span class="points">40pts</span>
+                            <h4>Specific Facts & Numbers</h4>
+                        </div>
+                        <div class="pattern-box">
+                            <code>\b\d+\b|\b(research|study|evidence)\b</code>
+                            <div class="pattern-hint">Matches numerical data and research references</div>
+                        </div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="criteria-header">
+                            <span class="points">30pts</span>
+                            <h4>Precise Language</h4>
+                        </div>
+                        <div class="pattern-box">
+                            <code>\b(specifically|precisely|exactly|approximately)\b</code>
+                            <div class="pattern-hint">Identifies precise qualifiers and specific terms</div>
+                        </div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="criteria-header">
+                            <span class="points">30pts</span>
+                            <h4>Proper Qualifiers</h4>
+                        </div>
+                        <div class="pattern-box">
+                            <code>\b(however|although|while|whereas)\b</code>
+                            <div class="pattern-hint">Detects nuanced reasoning and qualifications</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scoring-component">
+                <div class="component-header">
+                    <div class="weight-badge">35%</div>
+                    <h3>Scientific Consistency</h3>
+                </div>
+                <div class="criteria-list">
+                    <div class="criteria-item">
+                        <div class="criteria-header">
+                            <span class="points">35pts</span>
+                            <h4>Scientific Terms</h4>
+                        </div>
+                        <div class="pattern-box">
+                            <code>\b(hypothesis|theory|experiment|data|analysis|research|study)\b</code>
+                            <div class="pattern-hint">Identifies scientific terminology and concepts</div>
+                        </div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="criteria-header">
+                            <span class="points">35pts</span>
+                            <h4>Logical Structure</h4>
+                        </div>
+                        <div class="pattern-box">
+                            <code>\b(therefore|thus|because|since|as a result)\b</code>
+                            <div class="pattern-hint">Checks for logical flow and reasoning</div>
+                        </div>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="criteria-header">
+                            <span class="points">30pts</span>
+                            <h4>Methodology</h4>
+                        </div>
+                        <div class="pattern-box">
+                            <code>\b(method|approach|procedure|process|technique)\b</code>
+                            <div class="pattern-hint">Evaluates methodological references</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-divider">
+        <span class="divider-text">About</span>
+    </div>
+
+    <div class="about">
+        <div class="about-content">
+            <div class="about-section">
+                <h3>The Vision</h3>
+                <p>
+                    Just as Galileo's telescope revolutionized our understanding of the cosmos, 
+                    the Galileo Index aims to bring clarity to the expanding universe of artificial intelligence. 
+                    Through rigorous measurement and empirical observation, we seek to illuminate the path 
+                    toward more truthful and reliable AI systems.
+                </p>
+            </div>
+            <div class="about-section">
+                <h3>The Method</h3>
+                <p>
+                    Following in Galileo's footsteps, we employ mathematical precision and 
+                    systematic observation to evaluate AI models. As an open-source initiative, 
+                    our methodology combines verifiable test cases with transparent validation, 
+                    creating an objective framework for measuring AI truthfulness that anyone 
+                    can inspect, contribute to, and build upon.
+                </p>
+            </div>
+            <div class="about-section">
+                <h3>The Future</h3>
+                <p>
+                    As we stand on the threshold of a new era in artificial intelligence, 
+                    the need for reliable truth measurement becomes paramount. The Galileo Index 
+                    represents our commitment to ensuring that as AI advances, it remains 
+                    anchored to demonstrable truth and scientific rigor.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="page-footer">
+        <div class="quote-footer">
+            "Measure what is measurable, and make measurable what is not so."
+            <span class="quote-author">- Galileo Galilei</span>
+        </div>
+    </footer>
+</div>
+
+<style>
+    .hero {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: white;
+        position: relative;
+        overflow: hidden;
+        margin: -2rem -2rem 2rem -2rem;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: inherit;
+        z-index: 1;
+    }
+
+    .logo-container, 
+    .hero h1, 
+    .hero-description, 
+    .hero-actions {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .primary-button, 
+    .github-button {
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 3;
+    }
+
+    .primary-button {
+        background: var(--gold);
+        color: white;
+        border: none;
+    }
+
+    .github-button {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .primary-button:hover, 
+    .github-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .rankings-section {
+        margin: 4rem auto;
+        max-width: 1200px;
+        padding: 0 20px;
+    }
+
+    .rankings-section h2 {
+        text-align: center;
+        color: var(--primary-color);
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2em;
+        margin-bottom: 2rem;
+    }
+
+    .rankings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin: 2rem auto;
+    }
+
+    /* For exactly 4 cards, force 4 columns */
+    @media (min-width: 1200px) {
+        .rankings-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    /* For 3 cards or less, center them */
+    @media (min-width: 900px) and (max-width: 1199px) {
+        .rankings-grid {
+            grid-template-columns: repeat(3, minmax(280px, 300px));
+            justify-content: center;
+        }
+    }
+
+    /* For 2 cards, center them */
+    @media (min-width: 600px) and (max-width: 899px) {
+        .rankings-grid {
+            grid-template-columns: repeat(2, minmax(280px, 300px));
+            justify-content: center;
+        }
+    }
+
+    /* For 1 card, center it */
+    @media (max-width: 599px) {
+        .rankings-grid {
+            grid-template-columns: minmax(280px, 300px);
+            justify-content: center;
+        }
+    }
+
+    .model-card {
+        height: 100%;
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .model-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .model-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .model-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .model-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .model-logo {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+    }
+
+    .score-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), #d4b78f);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .score-value {
+        font-size: 1.4em;
+        font-weight: 600;
+        line-height: 1;
+    }
+
+    .status.verified {
+        font-size: 0.75em;
+        padding: 4px 12px;
+        border-radius: 12px;
+        background: #dcfce7;
+        color: #166534;
+        display: inline-block;
+    }
+
+    .model-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        margin-top: auto;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .stat-label {
+        font-size: 0.85em;
+        color: var(--text-color);
+        opacity: 0.7;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+        font-size: 1.1em;
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .empty-icon {
+        width: 48px;
+        height: 48px;
+        color: var(--gold);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: var(--text-color);
+        opacity: 0.7;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .rankings-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .hero-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+
+    .hero-description {
+        font-size: 1.4em;
+        font-family: 'Cormorant Garamond', serif;
+        opacity: 0.9;
+        max-width: 700px;
+        margin: 1rem auto;
+    }
+
+    .hero-stats {
+        display: flex;
+        justify-content: center;
+        gap: 4rem;
+        margin-top: 3rem;
+    }
+
+    .stat {
+        text-align: center;
+    }
+
+    .stat-number {
+        display: block;
+        font-size: 2.5em;
+        font-weight: 600;
+        color: var(--gold);
+    }
+
+    .stat-label {
+        font-size: 0.9em;
+        opacity: 0.9;
+    }
+
+    .section-divider {
+        text-align: center;
+        margin: 4rem 0;
+        position: relative;
+    }
+
+    .section-divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .divider-text {
+        background: var(--background-color);
+        padding: 0 2rem;
+        position: relative;
+        color: var(--primary-color);
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.4em;
+    }
+
+    .components-grid {
+        margin: 2rem auto;
+    }
+
+    .model-rankings {
+        margin: 2rem 0;
+    }
+
+    .about-content {
+        max-width: 1000px;
+        margin: 2rem auto;
+    }
+
+    .page-footer {
+        margin-top: 6rem;
+        padding: 3rem 0;
+        background: linear-gradient(to right, transparent, var(--background-color), transparent);
+        text-align: center;
+    }
+
+    .quote-footer {
+        font-family: 'Cormorant Garamond', serif;
+        font-style: italic;
+        color: var(--primary-color);
+        font-size: 1.2em;
+    }
+
+    .quote-footer .quote-author {
+        display: block;
+        margin-top: 0.5rem;
+        color: var(--gold);
+    }
+
+    .telescope-loader {
+        text-align: center;
+        padding: 4rem 0;
+    }
+
+    .telescope {
+        width: 120px;
+        height: 200px;
+        margin: 0 auto;
+        position: relative;
+        animation: telescopeObserve 4s infinite ease-in-out;
+    }
+
+    .telescope-body {
+        width: 40px;
+        height: 160px;
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        margin: 0 auto;
+        position: relative;
+        border-radius: 10px;
+    }
+
+    .telescope-lens {
+        width: 60px;
+        height: 60px;
+        background: var(--gold);
+        border-radius: 50%;
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        overflow: hidden;
+    }
+
+    .stars {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, white 1px, transparent 1px) 0 0 / 15px 15px;
+        animation: starsMove 3s infinite linear;
+    }
+
+    .telescope-base {
+        width: 80px;
+        height: 20px;
+        background: var(--gold);
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 5px;
+    }
+
+    @keyframes telescopeObserve {
+        0%, 100% { transform: rotate(-5deg); }
+        50% { transform: rotate(5deg); }
+    }
+
+    @keyframes starsMove {
+        0% { transform: translateY(0) rotate(0deg); }
+        100% { transform: translateY(-50%) rotate(45deg); }
+    }
+
+    .loading-text {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.8em;
+        color: var(--primary-color);
+        margin: 2rem 0 0.5rem;
+    }
+
+    .loading-subtext {
+        color: var(--gold);
+        font-style: italic;
+        margin-bottom: 1.5rem;
+    }
+
+    .twitter-link {
+        display: inline-block;
+        padding: 10px 20px;
+        background: white;
+        border: 1px solid var(--gold);
+        border-radius: 20px;
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .twitter-link:hover {
+        background: var(--gold);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .about-section {
+        margin-bottom: 2rem;
+    }
+
+    .about-section h3 {
+        color: var(--gold);
+        font-size: 1.4em;
+        margin-bottom: 1rem;
+    }
+
+    .about-section p {
+        line-height: 1.8;
+        font-size: 1.1em;
+    }
+
+    @media (max-width: 768px) {
+        .quote-scroll {
+            height: 200px;
+        }
+
+        .quote {
+            font-size: 1.3em;
+            padding: 0 1rem;
+        }
+
+        .loading-text {
+            font-size: 1.5em;
+        }
+    }
+
+    .components-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+        margin: 4rem auto;
+        max-width: 1200px;
+        padding: 0 20px;
+    }
+
+    @media (max-width: 1200px) {
+        .components-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .components-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .component {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(196, 167, 119, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .component::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--gold), var(--primary-color));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .component:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+
+    .component:hover::before {
+        opacity: 1;
+    }
+
+    .component h3 {
+        color: var(--primary-color);
+        font-size: 1.2em;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .component p {
+        color: var(--text-color);
+        line-height: 1.6;
+        margin: 0;
+        font-size: 1em;
+    }
+
+    .weight {
+        display: inline-block;
+        padding: 4px 12px;
+        background: linear-gradient(135deg, var(--gold), #d4b78f);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.8em;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    .component-icon {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .component-icon::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: var(--gold);
+        opacity: 0.1;
+        border-radius: 12px;
+        transform: rotate(45deg);
+    }
+
+    .x-icon {
+        width: 24px;
+        height: 24px;
+        transition: transform 0.3s ease;
+    }
+
+    .x-icon:hover {
+        transform: translateY(-2px);
+    }
+
+    .rankings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+        margin: 2rem auto;
+        max-width: 1200px;
+        padding: 0 20px;
+    }
+
+    .model-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(196, 167, 119, 0.2);
+    }
+
+    .model-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .status {
+        font-size: 0.8em;
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+
+    .status.verified {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status.in-progress {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .score {
+        font-size: 2.5em;
+        font-weight: 600;
+        color: var(--primary-color);
+        text-align: center;
+        margin: 1rem 0;
+    }
+
+    .strengths {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .strength-tag {
+        font-size: 0.85em;
+        padding: 4px 12px;
+        background: var(--background-color);
+        border-radius: 20px;
+        color: var(--primary-color);
+    }
+
+    .telescope-loader-small {
+        text-align: center;
+        padding: 0.5rem 0;
+    }
+
+    .telescope-small {
+        width: 60px;
+        height: 100px;
+        margin: 0 auto;
+        position: relative;
+        animation: telescopeObserve 4s infinite ease-in-out;
+        transform: scale(0.7);
+    }
+
+    .telescope-body-small {
+        width: 20px;
+        height: 80px;
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        margin: 0 auto;
+        position: relative;
+        border-radius: 5px;
+    }
+
+    .telescope-lens-small {
+        width: 30px;
+        height: 30px;
+        background: var(--gold);
+        border-radius: 50%;
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        overflow: hidden;
+    }
+
+    .stars-small {
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, white 1px, transparent 1px) 0 0 / 8px 8px;
+        animation: starsMove 3s infinite linear;
+    }
+
+    .models-testing {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .model-name {
+        font-size: 0.9em;
+        color: var(--secondary-color);
+        padding: 4px 12px;
+        background: var(--background-color);
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .github-icon {
+        width: 24px;
+        height: 24px;
+        transition: transform 0.3s ease;
+        color: var(--primary-color);
+    }
+
+    .github-icon:hover {
+        transform: translateY(-2px);
+    }
+
+    .open-source-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 1.5rem;
+        padding: 8px 16px;
+        background: white;
+        border: 1px solid var(--gold);
+        border-radius: 20px;
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        position: relative;
+        z-index: 10;
+    }
+
+    .open-source-link:hover {
+        background: var(--gold);
+        color: white;
+        transform: translateY(-2px);
+        cursor: pointer;
+    }
+
+    .github-hero-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .hero {
+        position: relative;
+        z-index: 5;
+    }
+
+    .stats-card {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+    }
+
+    .stats-icon {
+        width: 24px;
+        height: 24px;
+        color: var(--gold);
+    }
+
+    .stats-description {
+        color: rgba(255, 255, 255, 0.9);
+        margin: 1rem 0;
+        flex-grow: 1;
+    }
+
+    .stats-button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: var(--gold);
+        color: white;
+        text-decoration: none;
+        border-radius: 25px;
+        text-align: center;
+        transition: all 0.3s ease;
+        margin-top: auto;
+    }
+
+    .stats-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .scoring-methodology {
+        max-width: 1200px;
+        margin: 4rem auto;
+        padding: 0 20px;
+    }
+
+    .methodology-intro {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .methodology-intro h2 {
+        color: var(--primary-color);
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2em;
+        margin-bottom: 1rem;
+    }
+
+    .methodology-intro p {
+        font-size: 1.1em;
+        color: var(--text-color);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .scoring-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 2rem;
+    }
+
+    .scoring-component {
+        background: white;
+        padding: 2rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .scoring-component:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .component-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(196, 167, 119, 0.2);
+    }
+
+    .weight-badge {
+        background: linear-gradient(135deg, var(--gold), #d4b78f);
+        color: white;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 1em;
+    }
+
+    .scoring-component h3 {
+        color: var(--primary-color);
+        margin: 0;
+        font-size: 1.4em;
+        font-family: 'Cormorant Garamond', serif;
+    }
+
+    .criteria-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .criteria-item {
+        background: var(--background-color);
+        padding: 1.2rem;
+        border-radius: 12px;
+        border: 1px solid rgba(196, 167, 119, 0.2);
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .criteria-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .points {
+        background: var(--gold);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.9em;
+        font-weight: 500;
+    }
+
+    .criteria-item h4 {
+        margin: 0;
+        color: var(--primary-color);
+        font-size: 1.1em;
+    }
+
+    .pattern-box {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid rgba(196, 167, 119, 0.2);
+        overflow-x: auto;
+    }
+
+    .pattern-box code {
+        display: block;
+        font-family: 'Fira Code', monospace;
+        font-size: 0.9em;
+        color: var(--primary-color);
+        padding: 0.5rem;
+        background: rgba(196, 167, 119, 0.1);
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        white-space: nowrap;
+        overflow-x: auto;
+        word-spacing: 0.2em;
+        letter-spacing: 0.02em;
+    }
+
+    .pattern-hint {
+        font-size: 0.9em;
+        color: var(--text-color);
+        opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+        .scoring-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .scoring-component {
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .scoring-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .pattern-box {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<script>
+    // Add smooth scroll behavior
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script> 

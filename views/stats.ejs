@@ -1,0 +1,853 @@
+<%- include('partials/header', { pageTitle: 'Stats' }) %>
+
+<div class="container">
+    <div class="page-header">
+        <h1 class="page-title">Model Performance Stats</h1>
+        <p class="page-subtitle">Real-time performance metrics and test results</p>
+    </div>
+    
+    <div class="scoring-explainer">
+        <button class="explainer-toggle" onclick="toggleScoringDetails()">
+            <div class="toggle-header">
+                <svg class="info-icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                </svg>
+                <span>How Scores Are Calculated</span>
+            </div>
+            <svg class="chevron-icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+            </svg>
+        </button>
+        
+        <div class="scoring-details" id="scoringDetails">
+            <div class="scoring-grid">
+                <div class="scoring-card">
+                    <div class="card-header">
+                        <div class="weight">40%</div>
+                        <h3>Factual Accuracy</h3>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b\d+\b|\b(research|study|evidence)\b</code>
+                        <div class="pattern-label">Numbers & Research References (40pts)</div>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(specifically|precisely|exactly)\b</code>
+                        <div class="pattern-label">Precise Language (30pts)</div>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(however|although|while|whereas)\b</code>
+                        <div class="pattern-label">Proper Qualifiers (30pts)</div>
+                    </div>
+                </div>
+
+                <div class="scoring-card">
+                    <div class="card-header">
+                        <div class="weight">35%</div>
+                        <h3>Scientific Consistency</h3>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(hypothesis|theory|experiment|data)\b</code>
+                        <div class="pattern-label">Scientific Terms (35pts)</div>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(therefore|thus|because|since)\b</code>
+                        <div class="pattern-label">Logical Structure (35pts)</div>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(method|approach|procedure)\b</code>
+                        <div class="pattern-label">Methodology (30pts)</div>
+                    </div>
+                </div>
+
+                <div class="scoring-card">
+                    <div class="card-header">
+                        <div class="weight">40%</div>
+                        <h3>Uncertainty Recognition</h3>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(may|might|could|possibly|potentially|uncertain|unclear)\b</code>
+                        <div class="pattern-label">Expression of Uncertainty (40pts)</div>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(limitation|constraint|restriction|caveat|however)\b</code>
+                        <div class="pattern-label">Limitation Acknowledgment (30pts)</div>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(alternatively|other perspectives|different views|some argue)\b</code>
+                        <div class="pattern-label">Alternative Viewpoints (30pts)</div>
+                    </div>
+                </div>
+
+                <div class="scoring-card">
+                    <div class="card-header">
+                        <div class="weight">40%</div>
+                        <h3>Source Attribution</h3>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(according to|cited by|referenced in|study by)\b</code>
+                        <div class="pattern-label">Citations & References (40pts)</div>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(journal|paper|publication|research|article)\b</code>
+                        <div class="pattern-label">Specific Sources (30pts)</div>
+                    </div>
+                    <div class="regex-pattern">
+                        <code>\b(\d{4}|\d{4}s|recent|current|latest)\b</code>
+                        <div class="pattern-label">Temporal Context (30pts)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <% if (stats && stats.length > 0) { %>
+        <div class="stats-grid">
+            <% stats.forEach(modelStat => { %>
+                <div class="stat-card">
+                    <h3><%= modelStat.model %></h3>
+                    <div class="big-score"><%= modelStat.averageScore %>%</div>
+                    <div class="stat-details">
+                        <p>Total Tests: <%= modelStat.totalTests %></p>
+                        <div class="recent-scores">
+                            <h4>Recent Scores</h4>
+                            <div class="score-chart">
+                                <% modelStat.recentScores.forEach(score => { %>
+                                    <div class="score-bar" style="height: <%= score.score %>%"></div>
+                                <% }) %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <div class="no-data">
+            <p>No test results available yet. Run some tests in the playground to see statistics here!</p>
+            <a href="/playground" class="btn">Go to Playground</a>
+        </div>
+    <% } %>
+
+    <h2>Recent Test Results</h2>
+    <% if (recentResults && recentResults.length > 0) { %>
+        <div class="history-controls">
+            <span class="results-count">Showing <%= recentResults.length %> most recent results</span>
+            <button id="loadMoreBtn" class="load-more-btn" onclick="loadFullHistory()">
+                <svg class="history-icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+                </svg>
+                Load Full History
+            </button>
+        </div>
+
+        <div class="results-table" id="resultsContainer">
+            <%
+                // Group results by prompt
+                const groupedResults = {};
+                recentResults.forEach(result => {
+                    if (!groupedResults[result.prompt]) {
+                        groupedResults[result.prompt] = {
+                            timestamp: result.timestamp,
+                            responses: []
+                        };
+                    }
+                    groupedResults[result.prompt].responses.push(result);
+                });
+            %>
+            
+            <% Object.entries(groupedResults).forEach(([prompt, group]) => { %>
+                <div class="prompt-group">
+                    <div class="prompt-header">
+                        <div class="prompt-info">
+                            <h3 class="prompt-text">"<%= prompt %>"</h3>
+                            <span class="prompt-time"><%= new Date(group.timestamp).toLocaleString() %></span>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Score</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% group.responses.sort((a, b) => b.score - a.score).forEach(result => { %>
+                                <tr class="result-row" onclick="showResponse(this)" data-response="<%= result.response.replace(/"/g, '&quot;') %>">
+                                    <td class="model-cell">
+                                        <div class="model-name"><%= result.model %></div>
+                                    </td>
+                                    <td class="score-cell">
+                                        <div class="score-badge <%= result.score >= 70 ? 'high' : result.score >= 40 ? 'medium' : 'low' %>">
+                                            <%= result.score !== null ? result.score + '%' : 'N/A' %>
+                                        </div>
+                                    </td>
+                                    <td class="response-preview">
+                                        <div class="prompt-wrapper">
+                                            <span class="preview-text"><%= result.response.trim().replace(/\s+/g, ' ').slice(0, 100) %>...</span>
+                                            <span class="view-response">View Full Response <i class="arrow-icon">→</i></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% }); %>
+        </div>
+
+        <div id="loadingMore" class="loading-state" style="display: none;">
+            <div class="loading-spinner"></div>
+            <span>Loading more results...</span>
+        </div>
+    <% } %>
+
+    <div id="responseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>AI Response</h3>
+            <div id="modalResponse" class="response-text"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid rgba(196, 167, 119, 0.2);
+}
+
+.big-score {
+    font-size: 3em;
+    font-weight: bold;
+    color: var(--gold);
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.stat-details {
+    margin-top: 1rem;
+}
+
+.recent-scores {
+    margin-top: 1rem;
+}
+
+.score-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 100px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.score-bar {
+    flex: 1;
+    background: var(--gold);
+    opacity: 0.8;
+    transition: height 0.3s ease;
+    min-height: 4px;
+}
+
+.results-table {
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.prompt-group {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.prompt-header {
+    background: var(--background-color);
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(196, 167, 119, 0.2);
+}
+
+.prompt-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.prompt-text {
+    color: var(--primary-color);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4em;
+    margin: 0;
+    font-style: italic;
+}
+
+.prompt-time {
+    color: var(--gold);
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+.model-cell {
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.score-cell {
+    width: 100px;
+}
+
+.score-badge {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.score-badge.high {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.score-badge.medium {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.score-badge.low {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.response-preview {
+    max-width: 500px;
+}
+
+.preview-text {
+    color: var(--text-color);
+    opacity: 0.8;
+    font-size: 0.95em;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.result-row {
+    transition: all 0.2s ease;
+}
+
+.result-row:hover {
+    background-color: var(--background-color);
+}
+
+td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(196, 167, 119, 0.1);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.prompt-cell {
+    max-width: 400px;
+    overflow: hidden;
+}
+
+.no-data {
+    text-align: center;
+    padding: 2rem;
+    background: var(--background-color);
+    border-radius: 12px;
+    margin: 2rem 0;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--gold);
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    margin-top: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.result-row {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.result-row:hover {
+    background-color: var(--background-color);
+    transform: translateX(5px);
+}
+
+.prompt-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.view-response {
+    color: var(--gold);
+    font-size: 0.9em;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.arrow-icon {
+    font-style: normal;
+    transition: transform 0.2s ease;
+}
+
+.result-row:hover .view-response {
+    opacity: 1;
+}
+
+.result-row:hover .arrow-icon {
+    transform: translateX(5px);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    background-color: white;
+    margin: 5% auto;
+    padding: 2.5rem;
+    width: 90%;
+    max-width: 900px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    animation: modalFadeIn 0.3s ease;
+}
+
+.close-button {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background: var(--background-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(196, 167, 119, 0.2);
+}
+
+.close-button:hover {
+    background: var(--gold);
+    color: white;
+    transform: rotate(90deg);
+}
+
+.modal h3 {
+    color: var(--primary-color);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8em;
+    margin-bottom: 1rem;
+}
+
+.response-text {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: var(--background-color);
+    border-radius: 12px;
+    white-space: pre-wrap;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    max-height: 70vh;
+    overflow-y: auto;
+    border: 1px solid rgba(196, 167, 119, 0.2);
+}
+
+.response-text::-webkit-scrollbar {
+    width: 8px;
+}
+
+.response-text::-webkit-scrollbar-track {
+    background: var(--background-color);
+    border-radius: 4px;
+}
+
+.response-text::-webkit-scrollbar-thumb {
+    background: var(--gold);
+    border-radius: 4px;
+    opacity: 0.8;
+}
+
+.response-text::-webkit-scrollbar-thumb:hover {
+    opacity: 1;
+}
+
+/* Add subtle animation to the modal */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scoring-explainer {
+    background: white;
+    border-radius: 12px;
+    margin: 2rem auto;
+    max-width: 1200px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.explainer-toggle {
+    width: 100%;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.explainer-toggle:hover {
+    background: var(--background-color);
+}
+
+.toggle-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--primary-color);
+    font-size: 1.2em;
+    font-weight: 500;
+}
+
+.info-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--gold);
+}
+
+.chevron-icon {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+    color: var(--gold);
+}
+
+.explainer-toggle[aria-expanded="true"] .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.scoring-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    border-top: 1px solid rgba(196, 167, 119, 0.2);
+}
+
+.scoring-details.expanded {
+    max-height: 2000px;
+}
+
+.scoring-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.scoring-card {
+    background: var(--background-color);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(196, 167, 119, 0.2);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.weight {
+    background: linear-gradient(135deg, var(--gold), #d4b78f);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.scoring-card h3 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.2em;
+}
+
+.regex-pattern {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid rgba(196, 167, 119, 0.1);
+}
+
+.regex-pattern code {
+    display: block;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9em;
+    color: var(--primary-color);
+    padding: 0.5rem;
+    background: rgba(196, 167, 119, 0.1);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.pattern-label {
+    font-size: 0.9em;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+    .scoring-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.history-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.results-count {
+    color: var(--text-color);
+    font-size: 0.95em;
+    opacity: 0.8;
+}
+
+.load-more-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--background-color);
+    border: 1px solid var(--gold);
+    border-radius: 25px;
+    color: var(--primary-color);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.load-more-btn:hover {
+    background: var(--gold);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.history-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--gold);
+}
+
+.loading-spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--background-color);
+    border-top: 3px solid var(--gold);
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+const modal = document.getElementById('responseModal');
+const modalResponse = document.getElementById('modalResponse');
+const closeButton = document.querySelector('.close-button');
+
+function showResponse(row) {
+    const response = row.getAttribute('data-response');
+    const formattedResponse = response
+        .trim()
+        .replace(/\n{3,}/g, '\n\n')
+        .replace(/\s+$/gm, '')
+        .replace(/^\s+/gm, '');
+    
+    modalResponse.textContent = formattedResponse;
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+closeButton.onclick = function() {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function toggleScoringDetails() {
+    const details = document.getElementById('scoringDetails');
+    const toggle = document.querySelector('.explainer-toggle');
+    const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+    
+    details.classList.toggle('expanded');
+    toggle.setAttribute('aria-expanded', !isExpanded);
+}
+
+async function loadFullHistory() {
+    const loadingEl = document.getElementById('loadingMore');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const resultsContainer = document.getElementById('resultsContainer');
+    
+    try {
+        loadingEl.style.display = 'block';
+        loadMoreBtn.style.display = 'none';
+        
+        const response = await fetch('/api/all-results');
+        const allResults = await response.json();
+        
+        // Group and display results using the same logic as server-side
+        const groupedResults = {};
+        allResults.forEach(result => {
+            if (!groupedResults[result.prompt]) {
+                groupedResults[result.prompt] = {
+                    timestamp: result.timestamp,
+                    responses: []
+                };
+            }
+            groupedResults[result.prompt].responses.push(result);
+        });
+        
+        // Update the results count
+        document.querySelector('.results-count').textContent = 
+            `Showing all ${allResults.length} results`;
+        
+        // Render all results
+        resultsContainer.innerHTML = Object.entries(groupedResults)
+            .map(([prompt, group]) => `
+                <div class="prompt-group">
+                    <div class="prompt-header">
+                        <div class="prompt-info">
+                            <h3 class="prompt-text">"${prompt}"</h3>
+                            <span class="prompt-time">${new Date(group.timestamp).toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Score</th>
+                                <th>Response</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${group.responses.sort((a, b) => b.score - a.score)
+                                .map(result => `
+                                    <tr class="result-row" onclick="showResponse(this)" 
+                                        data-response="${result.response.replace(/"/g, '&quot;')}">
+                                        <td class="model-cell">
+                                            <div class="model-name">${result.model}</div>
+                                        </td>
+                                        <td class="score-cell">
+                                            <div class="score-badge ${result.score >= 70 ? 'high' : 
+                                                                     result.score >= 40 ? 'medium' : 'low'}">
+                                                ${result.score !== null ? result.score + '%' : 'N/A'}
+                                            </div>
+                                        </td>
+                                        <td class="response-preview">
+                                            <div class="prompt-wrapper">
+                                                <span class="preview-text">${result.response.trim()
+                                                    .replace(/\s+/g, ' ').slice(0, 100)}...</span>
+                                                <span class="view-response">View Full Response 
+                                                    <i class="arrow-icon">→</i></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `).join('');
+            
+    } catch (error) {
+        console.error('Error loading full history:', error);
+    } finally {
+        loadingEl.style.display = 'none';
+    }
+}
+</script>
+
+<%- include('partials/footer') %> 

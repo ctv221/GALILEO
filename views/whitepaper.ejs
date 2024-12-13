@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logo.png">
+    <title><%= giData.title %></title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@400;500;600&display=swap">
+    <style>
+        /* Copy existing styles from index.ejs and add: */
+        .whitepaper-content {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .whitepaper-content h1, .whitepaper-content h2, 
+        .whitepaper-content h3, .whitepaper-content h4 {
+            color: var(--primary-color);
+            font-family: 'Cormorant Garamond', serif;
+            margin-top: 2em;
+        }
+
+        .whitepaper-content h1 {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 1em;
+        }
+
+        .whitepaper-content p {
+            line-height: 1.8;
+            margin-bottom: 1.5em;
+        }
+
+        .whitepaper-content ul {
+            margin-bottom: 1.5em;
+            padding-left: 2em;
+        }
+
+        .back-to-home {
+            display: inline-block;
+            margin: 20px;
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1><%= giData.title %></h1>
+        <p><%= giData.description %></p>
+    </div>
+
+    <div class="container">
+        <div class="content-wrapper">
+            <h2>Abstract</h2>
+            <p>
+                The Galileo Index (GI) introduces a practical, empirical framework for evaluating AI model truthfulness 
+                through standardized test cases and verifiable metrics. By combining rigorous mathematical validation 
+                with transparent blockchain record-keeping on Solana, we provide a reliable measure of AI models' 
+                ability to provide accurate information.
+            </p>
+
+            <h2>1. Introduction</h2>
+            <h3>1.1 Motivation</h3>
+            <p>
+                As AI models become increasingly sophisticated, the need for objective truth measurement becomes critical. 
+                The Galileo Index addresses this by establishing a standardized testing framework focused on domains 
+                where ground truth can be definitively established.
+            </p>
+
+            <h3>1.2 Core Principles</h3>
+            <ul>
+                <li>Verifiable Ground Truth: Focus on domains with definitive correct answers</li>
+                <li>Reproducible Results: Standardized test cases and evaluation methods</li>
+                <li>Transparent Scoring: Clear metrics and evaluation criteria</li>
+                <li>Immutable Records: Blockchain-based result verification</li>
+            </ul>
+
+            <h2>2. Methodology</h2>
+            
+            <h3>2.1 Test Case Categories</h3>
+            <ul>
+                <li>Mathematical Problems (35%)
+                    <ul>
+                        <li>Differential equations</li>
+                        <li>Complex analysis</li>
+                        <li>Linear algebra</li>
+                        <li>Probability theory</li>
+                    </ul>
+                </li>
+                <li>Physical Laws (25%)
+                    <ul>
+                        <li>Classical mechanics</li>
+                        <li>Thermodynamics</li>
+                        <li>Electromagnetic theory</li>
+                        <li>Quantum mechanics</li>
+                    </ul>
+                </li>
+                <li>Logical Reasoning (20%)
+                    <ul>
+                        <li>Formal logic</li>
+                        <li>Boolean algebra</li>
+                        <li>Set theory</li>
+                        <li>Algorithm analysis</li>
+                    </ul>
+                </li>
+                <li>Empirical Validation (20%)
+                    <ul>
+                        <li>Statistical analysis</li>
+                        <li>Experimental design</li>
+                        <li>Data interpretation</li>
+                        <li>Error analysis</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>2.2 Evaluation Process</h3>
+            <ol>
+                <li>Test Case Generation
+                    <ul>
+                        <li>Problems with known, verifiable solutions</li>
+                        <li>Multiple complexity levels</li>
+                        <li>Diverse domain coverage</li>
+                    </ul>
+                </li>
+                <li>Model Response Collection
+                    <ul>
+                        <li>Standardized input format</li>
+                        <li>Controlled testing environment</li>
+                        <li>Response validation</li>
+                    </ul>
+                </li>
+                <li>Answer Validation
+                    <ul>
+                        <li>Automated correctness checking</li>
+                        <li>Step-by-step verification</li>
+                        <li>Error analysis</li>
+                    </ul>
+                </li>
+                <li>Score Calculation
+                    <ul>
+                        <li>Domain-specific metrics</li>
+                        <li>Weighted aggregation</li>
+                        <li>Confidence intervals</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <h2>3. Technical Implementation</h2>
+            
+            <h3>3.1 Core Components</h3>
+            <ul>
+                <li>Python Evaluation Framework
+                    <ul>
+                        <li>Test case management</li>
+                        <li>Response validation</li>
+                        <li>Score calculation</li>
+                    </ul>
+                </li>
+                <li>Solana Program Integration
+                    <ul>
+                        <li>Result verification</li>
+                        <li>Score recording</li>
+                        <li>Public accessibility</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>3.2 Validation Logic</h3>
+            <p>
+                Each response undergoes multi-stage validation:
+            </p>
+            <ol>
+                <li>Syntax Verification: Ensuring response format matches requirements</li>
+                <li>Semantic Analysis: Checking mathematical/logical correctness</li>
+                <li>Step Validation: Verifying solution methodology</li>
+                <li>Result Confirmation: Comparing final answers</li>
+            </ol>
+
+            <h2>4. Scoring System</h2>
+            
+            <h3>4.1 Metrics</h3>
+            <ul>
+                <li>Correctness (50%): Accuracy of final answer</li>
+                <li>Methodology (30%): Proper solution steps</li>
+                <li>Clarity (10%): Clear explanation</li>
+                <li>Efficiency (10%): Optimal solution path</li>
+            </ul>
+
+            <h3>4.2 Score Aggregation</h3>
+            <p>
+                Final scores are calculated using weighted averages across all test cases, with adjustments for:
+            </p>
+            <ul>
+                <li>Problem complexity</li>
+                <li>Domain importance</li>
+                <li>Response consistency</li>
+                <li>Error margins</li>
+            </ul>
+
+            <h2>5. Future Development</h2>
+            
+            <h3>5.1 Planned Improvements</h3>
+            <ul>
+                <li>Expanded test case database</li>
+                <li>Advanced validation algorithms</li>
+                <li>Real-time evaluation capabilities</li>
+                <li>Community contribution framework</li>
+            </ul>
+
+            <h3>5.2 Research Directions</h3>
+            <ul>
+                <li>Automated test case generation</li>
+                <li>Dynamic difficulty adjustment</li>
+                <li>Cross-domain validation methods</li>
+                <li>Uncertainty quantification</li>
+            </ul>
+
+            <h2>6. Conclusion</h2>
+            <p>
+                The Galileo Index provides a practical, implementable framework for measuring AI truthfulness. 
+                By focusing on verifiable test cases and leveraging blockchain technology for transparency, 
+                we enable objective comparison of AI models' capabilities in providing accurate information.
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

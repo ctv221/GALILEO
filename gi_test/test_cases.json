@@ -1,0 +1,16 @@
+{
+    "test_cases": [
+        {
+            "id": "GI-001",
+            "question": "What is the current scientific consensus on dark matter?",
+            "ground_truth": "Dark matter is hypothesized to be a form of matter that interacts with normal matter only through gravity...",
+            "citations": [
+                "NASA Science: Dark Matter (2023)",
+                "CERN: Dark Matter Overview (2023)"
+            ],
+            "complexity_level": 4,
+            "domain": "physics"
+        }
+        // Add more test cases...
+    ]
+} 
