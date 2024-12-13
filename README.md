@@ -2,6 +2,12 @@
 
 Illuminating truth in artificial intelligence through empirical measurement.
 
+## Links
+
+- 🌐 **Website**: [galileoindex.ai](https://galileoindex.ai)
+- 🎮 **Playground**: [galileoindex.ai/playground](https://galileoindex.ai/playground)
+- 🐦 **Twitter**: [@GalileoIndexSOL](https://x.com/GalileoIndexSOL)
+
 ## Overview
 
 The Galileo Index (GI) is an open-source framework for measuring and comparing AI model truthfulness. Just as Galileo's telescope revolutionized our understanding of the cosmos, the Galileo Index aims to bring clarity to the expanding universe of artificial intelligence through rigorous measurement and empirical observation.
