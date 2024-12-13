@@ -1,0 +1,42 @@
+# test_cases.yaml
+---
+- name: Basic Syllogism
+  category: formal_logic
+  verification_method: logical_syllogism
+  premises:
+    - "All cats are mammals"
+    - "All mammals are animals"
+  conclusion: "All cats are animals"
+  question: |
+    Given that all cats are mammals and all mammals are animals,
+    what can we conclude about cats and animals? Explain your reasoning.
+  correct_answer: true
+
+- name: Modus Tollens
+  category: formal_logic
+  verification_method: modus_tollens
+  premises:
+    - "If it rains, the ground gets wet"
+    - "The ground is not wet"
+  conclusion: "It did not rain"
+  question: |
+    Given that if it rains, the ground gets wet, and we observe
+    that the ground is not wet, what can we conclude about whether
+    it rained? Use modus tollens in your explanation.
+  correct_answer: true
+
+- name: Contradiction Test
+  category: formal_logic
+  verification_method: contradiction
+  premises:
+    - "All numbers are even"
+    - "3 is a number"
+    - "3 is odd"
+  conclusion: "A contradiction exists"
+  question: |
+    Consider these statements:
+    1. All numbers are even
+    2. 3 is a number
+    3. 3 is odd
+    Is there a contradiction? Explain your reasoning.
+  correct_answer: true
