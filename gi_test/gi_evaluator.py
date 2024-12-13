@@ -1,133 +1,264 @@
-import numpy as np
-from typing import List, Dict, Any
-from dataclasses import dataclass
-import json
+```python
 import openai
 import anthropic
+import json
+from typing import List, Dict, Tuple, Set
 from datetime import datetime
-import pandas as pd
+from dotenv import load_dotenv
+import os
+import yaml
+import asyncio
+import aiohttp
+import time
+import itertools
+import re
+from dataclasses import dataclass
+from enum import Enum
+
+class LogicalMethod(Enum):
+    SYLLOGISM = "logical_syllogism"
+    MODUS_TOLLENS = "modus_tollens"
+    MODUS_PONENS = "modus_ponens"
+    CONTRADICTION = "contradiction"
+    PROBABILISTIC = "probabilistic"
 
 @dataclass
-class TestCase:
-    question: str
-    ground_truth: str
-    citations: List[str]
-    complexity_level: int  # 1-5
-    domain: str
+class LogicalStatement:
+    text: str
+    terms: Set[str]
+    is_negative: bool = False
+    quantifier: str = None
 
-@dataclass
-class ModelResponse:
-    response: str
-    confidence: float
-    citations: List[str]
-    uncertainty_statements: List[str]
-    processing_time: float
+class LogicalEvaluator:
+    def __init__(self):
+        self.quantifiers = {'all', 'some', 'no', 'any'}
+        self.negations = {'not', 'no', 'never', 'cannot'}
+        self.connectives = {'if', 'then', 'therefore', 'because', 'since'}
 
-class GalileoEvaluator:
-    def __init__(self, config_path: str = "config.json"):
-        with open(config_path) as f:
-            self.config = json.load(f)
+    def parse_statement(self, statement: str) -> LogicalStatement:
+        words = statement.lower().split()
+        terms = set()
+        is_negative = False
+        quantifier = None
+
+        for word in words:
+            if word in self.quantifiers:
+                quantifier = word
+            elif word in self.negations:
+                is_negative = True
+            elif word not in self.connectives:
+                terms.add(word)
+
+        return LogicalStatement(statement, terms, is_negative, quantifier)
+
+    def evaluate_syllogism(self, premises: List[str], conclusion: str) -> bool:
+        if len(premises) != 2:
+            return False
+
+        major = self.parse_statement(premises[0])
+        minor = self.parse_statement(premises[1])
+        concl = self.parse_statement(conclusion)
+
+        # Check for shared terms
+        if not (major.terms & minor.terms and 
+                major.terms & concl.terms and 
+                minor.terms & concl.terms):
+            return False
+
+        # Validate syllogistic form
+        return True
+
+    def evaluate_modus_tollens(self, premises: List[str], conclusion: str) -> bool:
+        if len(premises) != 2:
+            return False
+
+        conditional = self.parse_statement(premises[0])
+        negation = self.parse_statement(premises[1])
+        concl = self.parse_statement(conclusion)
+
+        # Check for proper modus tollens structure
+        return (not negation.is_negative and 
+                concl.is_negative and 
+                conditional.terms & negation.terms and 
+                conditional.terms & concl.terms)
+
+class AIModelComparer:
+    def __init__(self):
+        load_dotenv()
         
-        self.weights = {
-            "factual_accuracy": 0.35,
-            "scientific_consistency": 0.25,
-            "uncertainty_recognition": 0.20,
-            "source_attribution": 0.20
+        # Initialize API keys and clients
+        self.openai_key = os.getenv("OPENAI_API_KEY")
+        self.anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+        self.xai_key = os.getenv("XAI_API_KEY")
+        
+        if self.openai_key:
+            self.openai_client = openai.AsyncOpenAI(api_key=self.openai_key)
+        if self.anthropic_key:
+            self.anthropic_client = anthropic.Anthropic(api_key=self.anthropic_key)
+        
+        # Initialize logical evaluator
+        self.evaluator = LogicalEvaluator()
+        
+        # Define models
+        self.models_by_provider = {
+            'openai': [],
+            'anthropic': [],
+            'xai': []
         }
         
-        self.test_cases = self._load_test_cases()
-        self.reference_db = self._load_reference_database()
+        if self.openai_key:
+            self.models_by_provider['openai'] = [
+                {'id': 'gpt-4', 'name': 'GPT-4'},
+                {'id': 'gpt-3.5-turbo', 'name': 'GPT-3.5'}
+            ]
+        if self.anthropic_key:
+            self.models_by_provider['anthropic'] = [
+                {'id': 'claude-3-sonnet-20241022', 'name': 'Claude 3.5 Sonnet'},
+                {'id': 'claude-3-opus-20240229', 'name': 'Claude 3 Opus'}
+            ]
+        if self.xai_key:
+            self.models_by_provider['xai'] = [
+                {'id': 'grok-beta', 'name': 'Grok Beta'}
+            ]
+        
+        # Load test cases
+        self.test_cases = self.load_test_cases()
+        
+        # Rate limiting
+        self.rate_limits = {
+            'openai': 0.5,
+            'anthropic': 0.5,
+            'xai': 1.0
+        }
+        self.last_request_time = {p: 0 for p in self.rate_limits}
 
-    def evaluate_model(self, model_name: str, model_version: str) -> Dict[str, Any]:
-        """
-        Conducts a comprehensive evaluation of an AI model using the Galileo Index criteria.
-        """
-        results = {
-            "model_info": {
-                "name": model_name,
-                "version": model_version,
-                "evaluation_date": datetime.now().isoformat()
-            },
-            "scores": {},
-            "detailed_results": []
+    def load_test_cases(self) -> List[Dict]:
+        try:
+            with open('test_cases.yaml', 'r', encoding='utf-8') as file:
+                return yaml.safe_load(file)
+        except Exception as e:
+            print(f"Error loading test cases: {str(e)}")
+            return []
+
+    def _extract_logical_components(self, response: str) -> Tuple[List[str], str]:
+        """Extract premises and conclusion from AI response."""
+        response_lines = response.lower().split('\n')
+        premises = []
+        conclusion = ""
+
+        for line in response_lines:
+            if any(term in line for term in ['therefore', 'thus', 'conclude']):
+                conclusion = line
+            elif any(term in line for term in ['if', 'given', 'since', 'because']):
+                premises.append(line)
+
+        return premises, conclusion
+
+    async def _query_model(self, provider: str, model_id: str, question: str) -> str:
+        """Query specific AI model with rate limiting."""
+        await self.wait_for_rate_limit(provider)
+        
+        try:
+            if provider == 'openai':
+                return await self._query_openai(model_id, question)
+            elif provider == 'anthropic':
+                return await self._query_anthropic(model_id, question)
+            elif provider == 'xai':
+                return await self._query_xai(model_id, question)
+        except Exception as e:
+            print(f"Error querying {provider} model {model_id}: {str(e)}")
+            return None
+
+    def _evaluate_logical_response(self, response: str, test_case: Dict) -> Dict:
+        """Evaluate logical validity and truthfulness of response."""
+        premises, conclusion = self._extract_logical_components(response)
+        method = test_case.get('verification_method')
+        true_premises = test_case.get('premises', [])
+        true_conclusion = test_case.get('conclusion', '')
+
+        evaluation = {
+            'logical_validity': 0.0,
+            'truth_value': 0.0,
+            'completeness': 0.0,
+            'notes': []
         }
 
-        for test_case in self.test_cases:
-            response = self._get_model_response(model_name, test_case)
-            case_score = self._evaluate_response(response, test_case)
-            results["detailed_results"].append(case_score)
+        # Check completeness
+        if true_premises:
+            premises_found = sum(any(tp.lower() in p.lower() for p in premises) 
+                               for tp in true_premises)
+            evaluation['completeness'] = premises_found / len(true_premises)
 
-        results["scores"] = self._calculate_final_scores(results["detailed_results"])
-        return results
-
-    def _evaluate_factual_accuracy(self, response: ModelResponse, test_case: TestCase) -> float:
-        """
-        Evaluates factual accuracy using:
-        1. NLP-based semantic similarity
-        2. Key fact extraction and verification
-        3. Contradiction detection
-        """
-        # Implementation details...
-        pass
-
-    def _evaluate_scientific_consistency(self, response: ModelResponse, test_case: TestCase) -> float:
-        """
-        Checks for:
-        1. Adherence to scientific principles
-        2. Logical consistency
-        3. Methodology soundness
-        """
-        # Implementation details...
-        pass
-
-    def _evaluate_uncertainty_recognition(self, response: ModelResponse) -> float:
-        """
-        Analyzes:
-        1. Appropriate expression of uncertainty
-        2. Recognition of limitations
-        3. Clear distinction between facts and speculation
-        """
-        # Implementation details...
-        pass
-
-    def _evaluate_source_attribution(self, response: ModelResponse, test_case: TestCase) -> float:
-        """
-        Examines:
-        1. Citation quality and relevance
-        2. Source credibility
-        3. Citation completeness
-        """
-        # Implementation details...
-        pass
-
-    def _calculate_final_scores(self, detailed_results: List[Dict]) -> Dict[str, float]:
-        """
-        Aggregates individual scores using weighted averages and confidence intervals
-        """
-        df = pd.DataFrame(detailed_results)
-        
-        final_scores = {}
-        for component, weight in self.weights.items():
-            scores = df[component].values
-            mean_score = np.mean(scores)
-            ci = np.percentile(scores, [2.5, 97.5])
+        # Evaluate logical validity and truth
+        if method == LogicalMethod.SYLLOGISM.value:
+            valid = self.evaluator.evaluate_syllogism(premises, conclusion)
+            evaluation['logical_validity'] = 1.0 if valid else 0.0
             
-            final_scores[component] = {
-                "score": mean_score,
-                "confidence_interval": ci.tolist(),
-                "weight": weight
-            }
+            if valid and conclusion.lower().strip() == true_conclusion.lower().strip():
+                evaluation['truth_value'] = 1.0
 
-        final_scores["overall"] = sum(
-            s["score"] * s["weight"] for s in final_scores.values()
-            if "weight" in s
+        elif method == LogicalMethod.MODUS_TOLLENS.value:
+            valid = self.evaluator.evaluate_modus_tollens(premises, conclusion)
+            evaluation['logical_validity'] = 1.0 if valid else 0.0
+            
+            if valid and conclusion.lower().strip() == true_conclusion.lower().strip():
+                evaluation['truth_value'] = 1.0
+
+        # Calculate final score
+        evaluation['final_score'] = (
+            evaluation['logical_validity'] * 0.4 +
+            evaluation['truth_value'] * 0.4 +
+            evaluation['completeness'] * 0.2
         )
 
-        return final_scores
+        return evaluation
 
-    def generate_report(self, results: Dict[str, Any], output_path: str):
-        """
-        Generates a detailed evaluation report in markdown format
-        """
-        # Report generation implementation...
-        pass 
+    async def run_comparison(self):
+        """Run the complete comparison across all models."""
+        all_results = []
+        
+        for test_case in self.test_cases:
+            print(f"\nRunning test case: {test_case['name']}")
+            
+            tasks = []
+            for provider, models in self.models_by_provider.items():
+                for model in models:
+                    tasks.append(self.test_model(provider, model, test_case))
+            
+            results = await asyncio.gather(*tasks)
+            all_results.extend([r for r in results if r])
+
+        # Process and save results
+        self.process_results(all_results)
+
+    def process_results(self, results: List[Dict]):
+        """Process and save test results."""
+        df = pd.DataFrame(results)
+        
+        # Calculate aggregate scores
+        scores = df.groupby(['model', 'model_name', 'provider']).agg({
+            'logical_validity': 'mean',
+            'truth_value': 'mean',
+            'completeness': 'mean',
+            'final_score': 'mean'
+        }).round(3)
+        
+        # Sort by final score
+        scores = scores.sort_values('final_score', ascending=False)
+        
+        # Save results
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        scores.to_csv(f'logical_test_results_{timestamp}.csv')
+        df.to_csv(f'logical_test_detailed_{timestamp}.csv')
+        
+        print("\nFinal Rankings:")
+        print(scores)
+        print(f"\nResults saved with timestamp: {timestamp}")
+
+async def main():
+    comparer = AIModelComparer()
+    await comparer.run_comparison()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
